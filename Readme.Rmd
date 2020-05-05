@@ -336,5 +336,5 @@ mkmap<-leaflet(options = leafletOptions(minZoom = 6)) %>%addTiles() %>%
 
 
 # Display Map 
-*Output: [South Sudan Market Connectivity Map](https://zackarno.github.io/South_Sudan_Market_Connectivity)
+* Output: [South Sudan Market Connectivity Map](https://zackarno.github.io/South_Sudan_Market_Connectivity)
 ```
