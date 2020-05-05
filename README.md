@@ -1,35 +1,15 @@
----
-output: 
-  md_document:
-    variant: markdown_github
-    toc: true
-    toc_depth: 2
-# output: github_document
----
+-   [Clean up market assessment data](#clean-up-market-assessment-data)
+-   [Spatial data wrangling](#spatial-data-wrangling)
+-   [Prepare settlement and market data for
+    map](#prepare-settlement-and-market-data-for-map)
+-   [Leaflet Map](#leaflet-map)
 
+Below is the code require to create the: [South Sudan Market
+Connectivity Map](zackarno.github.io/South_Sudan_Market_Connectivity)
 
-Below is the code require to create the: [South Sudan Market Connectivity Map](zackarno.github.io/South_Sudan_Market_Connectivity)
+\#Load Data
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-echo = T,
-message = FALSE,
-warning = FALSE,
-out.width = "100%"
-)
-
-
-library(tidyverse)
-library(sf)
-library(butteR)
-library(lubridate)
-library(leaflet)
-
-```
-
-#Load Data
-
-```{r}
+``` r
 source("scripts/functions/colors.R")
 settlement_path<-"../../ssd_aok/outputs/2020_03/settlement_lists/2020_03_working_master_settlement_list_2020_04_21.csv"
 aok_feb_path<-"../../South_Sudan_Area_of_Knowledge/outputs/2020_02/aggregated_data/2020_05_04_reach_ssd_settlement_aggregated_AoK_Feb2020_Data.csv"
@@ -39,16 +19,66 @@ aok_march_path<-"../../South_Sudan_Area_of_Knowledge/outputs/2020_03/aggregated_
 #######################################################
 adm2<-st_read("../../../gis_data/gis_base/boundaries","adm2_cleaned") %>%
   st_transform(crs=4326)
+```
+
+    ## Reading layer `adm2_cleaned' from data source `C:\02_REACH_SSD\gis_data\gis_base\boundaries' using driver `ESRI Shapefile'
+    ## Simple feature collection with 79 features and 16 fields
+    ## geometry type:  POLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 24.15073 ymin: 3.48784 xmax: 35.95192 ymax: 12.23635
+    ## CRS:            4326
+
+``` r
 adm2<-adm2 %>% select(ADM2_EN,everything())
 adm2_center<-st_centroid(adm2) #will use this for labels
 adm0<-st_read("../../../gis_data/gis_base/boundaries","ssd_admbnda_adm0_imwg_nbs_20180817") %>%
   st_transform(crs=4326)
+```
+
+    ## Reading layer `ssd_admbnda_adm0_imwg_nbs_20180817' from data source `C:\02_REACH_SSD\gis_data\gis_base\boundaries' using driver `ESRI Shapefile'
+    ## Simple feature collection with 1 feature and 10 fields
+    ## geometry type:  POLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 24.15073 ymin: 3.48784 xmax: 35.95192 ymax: 12.23635
+    ## CRS:            4326
+
+``` r
 adm2_lines<-st_cast(adm2,to =  "MULTILINESTRING")
 landscape_db<-"../../../gis_data/gis_base/landscape"
 water<-st_read(landscape_db, "ssd_Lakes_and_marshland_fao_500k")
-rds<-st_read("../../../gis_data/gis_base/landscape","SSD_Roads") %>% st_transform(crs=4326)
-adm_diff<-st_read("../../../gis_data/gis_base/boundaries",layer = "ssd_adm0_difference_rect") # will use this remove background outside ssd
+```
 
+    ## Reading layer `ssd_Lakes_and_marshland_fao_500k' from data source `C:\02_REACH_SSD\gis_data\gis_base\landscape' using driver `ESRI Shapefile'
+    ## Simple feature collection with 184 features and 8 fields
+    ## geometry type:  POLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 24.97436 ymin: 2.368016 xmax: 36.68715 ymax: 11.99419
+    ## CRS:            4326
+
+``` r
+rds<-st_read("../../../gis_data/gis_base/landscape","SSD_Roads") %>% st_transform(crs=4326)
+```
+
+    ## Reading layer `SSD_Roads' from data source `C:\02_REACH_SSD\gis_data\gis_base\landscape' using driver `ESRI Shapefile'
+    ## Simple feature collection with 3 features and 3 fields
+    ## geometry type:  MULTILINESTRING
+    ## dimension:      XY
+    ## bbox:           xmin: -432290.8 ymin: 391508.7 xmax: 697722.8 ymax: 1352550
+    ## CRS:            32636
+
+``` r
+adm_diff<-st_read("../../../gis_data/gis_base/boundaries",layer = "ssd_adm0_difference_rect") # will use this remove background outside ssd
+```
+
+    ## Reading layer `ssd_adm0_difference_rect' from data source `C:\02_REACH_SSD\gis_data\gis_base\boundaries' using driver `ESRI Shapefile'
+    ## replacing null geometries with empty geometries
+    ## Simple feature collection with 2 features and 1 field (with 1 geometry empty)
+    ## geometry type:  POLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 3.331702 ymin: -12.01951 xmax: 58.47997 ymax: 25.06518
+    ## CRS:            4326
+
+``` r
 # class lwd can be used to weight thickness of roads
 rds<-rds %>%
   mutate(CLASS_lwd=case_when(
@@ -73,18 +103,18 @@ settlement<-read_csv(settlement_path)
 settlement<-settlement %>%
   mutate(sett_name_county_low = NAMECOUNTY %>% tolower_rm_special()) %>%
   select(NAME, NAMEJOIN,COUNTYJOIN,sett_name_county_low,sett_lon=X,sett_lat=Y)
-
-
-
-
 ```
 
+\#Attach market and settlment coordinates to data points
 
-#Attach market and settlment coordinates to data points
-
-```{r}
+``` r
 aok_with_sett_coords<-aok %>% left_join(settlement , by=c("D.name_county_low"="sett_name_county_low"))
 aok_with_sett_coords %>% nrow()
+```
+
+    ## [1] 4271
+
+``` r
 #IF I USE THE FULL FEB MARCH AOK COORDS THEN IT WILL BE CLEAR WHO HAD MARKETS AND WHO DIDNT
 
 
@@ -97,20 +127,20 @@ markets<-readxl::read_xlsx("inputs/itemset_aok_market.xlsx","market_assesment", 
 
 # markets %>% mutate(match=ifelse(!name_county_low %in% aok_itemset$name_county_low,"no_match","match")) %>%
   # filter(match=="no_match")
-
-
 ```
 
+Clean up market assessment data
+===============================
 
+-   If there are multiple markets in one settlement we can just use the
+    centroid to represent the market for the purpose of this map.
 
-# Clean up market assessment data
+-   Since we have both Feb & March data if we have the same settlement
+    twice we will first select the record which has data (i.e dont
+    choose the record that has “no consensus” or is blank), then we
+    choose then we preferentially choose the more recently data record.
 
-* If there are multiple markets in one settlement we can just use the centroid to represent the market for the purpose of this map.
-
-* Since we have both Feb & March data if we have the same settlement twice we will first select the record which has data (i.e dont choose the record that has "no consensus" or is blank), then we choose then we preferentially choose the more recently data record.
-
-```{r}
-
+``` r
 markets_unique<- markets %>%
   group_by(county, location_label, name_county_low) %>%
   summarise(
@@ -129,6 +159,11 @@ itemset_fixed<-aok_itemset %>%
 
 
 aok_with_sett_coords %>% nrow()
+```
+
+    ## [1] 4271
+
+``` r
 aok_data_filtered<-aok_with_sett_coords %>%
   mutate(mont=ymd(month)) %>%
   group_by(D.info_county, D.info_settlement) %>%
@@ -174,15 +209,12 @@ aok_data_with_mkt_simp<-aok_data_with_mkt %>%
 aok_data_with_mkt_simp<-aok_data_with_mkt_simp %>% filter(!is.na(mkt_lon))
 ```
 
-
-
-# Spatial data wrangling
+Spatial data wrangling
+======================
 
 Convert data set into multi point geometry and then cast lines
 
-```{r}
-
-
+``` r
 # wrangle spatial data into multipoint
 aok_multi_pt_gath<-aok_data_with_mkt_simp %>%
   ungroup() %>%
@@ -203,19 +235,18 @@ aok_lines<-aok_multi_pt_gath %>%
   st_cast("LINESTRING")
 
 aok_lines<-sf::st_set_crs(aok_lines, value = 4326)
-
-
 ```
 
+Prepare settlement and market data for map
+==========================================
 
-# Prepare settlement and market data for map
+-   Make a simplified markets file which can be used to genreate
+    proportional bubble dots depending on \# settlements served
+-   Make labels to be used as popups/hover/tooltips
+-   there is some experimenting with make custom spatial clusters which
+    will change at different zooms (not implemented in current map)
 
-* Make a simplified markets file which can be used to genreate proportional bubble dots depending on # settlements served
-* Make labels to be used as popups/hover/tooltips
-* there is some experimenting with make custom spatial clusters which will change at different zooms (not implemented in current map)
-
-```{r}
-
+``` r
 mkt_simp<-aok_data_with_mkt_simp %>%
   ungroup() %>%
   group_by(U.cereal_market_county,U.cereal_market_sett, U.name_county_low) %>%
@@ -256,24 +287,15 @@ aok_sf$popup_text <-
          '<br/>', '<strong>','County: ' ,' </strong>',  aok_sf$D.info_county,
          '<br/>', '<strong>','Preferred Market: ','</strong>', aok_sf$preferred_market,  ' ') %>%
   lapply(htmltools::HTML)
-
-
-
-
-
-
-
-
-
-
 ```
 
-# Leaflet Map
-* prep color ramps and bounding box
-* generate leaflet object
+Leaflet Map
+===========
 
-```{r}
+-   prep color ramps and bounding box
+-   generate leaflet object
 
+``` r
 adm2_bbox<-st_bbox(adm2) %>% as.vector()
 mkt_bins <-c(0,5, 10, 20,68)
 binpal <- colorBin("Blues", mk_sf$number_connects, mkt_bins, pretty = FALSE)
@@ -332,7 +354,6 @@ mkmap<-leaflet(options = leafletOptions(minZoom = 6)) %>%addTiles() %>%
   # library(htmlwidgets)
 # saveWidget(mkmap, file="reach_ssd_market_connectivity_05april2020.html")
 mkmap
-
-
 ```
 
+<img src="README_files/figure-markdown_github/unnamed-chunk-6-1.png" width="100%" />
