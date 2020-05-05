@@ -1,3 +1,4 @@
+-   [Load Data](#load-data)
 -   [Clean up market assessment data](#clean-up-market-assessment-data)
 -   [Spatial data wrangling](#spatial-data-wrangling)
 -   [Prepare settlement and market data for
@@ -7,7 +8,8 @@
 Below is the code require to create the: [South Sudan Market
 Connectivity Map](zackarno.github.io/South_Sudan_Market_Connectivity)
 
-\#Load Data
+Load Data
+=========
 
 ``` r
 source("scripts/functions/colors.R")
@@ -17,68 +19,18 @@ aok_march_path<-"../../South_Sudan_Area_of_Knowledge/outputs/2020_03/aggregated_
 
 #spatial data inputs
 #######################################################
-adm2<-st_read("../../../gis_data/gis_base/boundaries","adm2_cleaned") %>%
+adm2<-st_read("../../../gis_data/gis_base/boundaries","adm2_cleaned", quiet=T) %>%
   st_transform(crs=4326)
-```
-
-    ## Reading layer `adm2_cleaned' from data source `C:\02_REACH_SSD\gis_data\gis_base\boundaries' using driver `ESRI Shapefile'
-    ## Simple feature collection with 79 features and 16 fields
-    ## geometry type:  POLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: 24.15073 ymin: 3.48784 xmax: 35.95192 ymax: 12.23635
-    ## CRS:            4326
-
-``` r
 adm2<-adm2 %>% select(ADM2_EN,everything())
 adm2_center<-st_centroid(adm2) #will use this for labels
-adm0<-st_read("../../../gis_data/gis_base/boundaries","ssd_admbnda_adm0_imwg_nbs_20180817") %>%
+adm0<-st_read("../../../gis_data/gis_base/boundaries","ssd_admbnda_adm0_imwg_nbs_20180817", quiet=T) %>%
   st_transform(crs=4326)
-```
-
-    ## Reading layer `ssd_admbnda_adm0_imwg_nbs_20180817' from data source `C:\02_REACH_SSD\gis_data\gis_base\boundaries' using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 10 fields
-    ## geometry type:  POLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: 24.15073 ymin: 3.48784 xmax: 35.95192 ymax: 12.23635
-    ## CRS:            4326
-
-``` r
 adm2_lines<-st_cast(adm2,to =  "MULTILINESTRING")
 landscape_db<-"../../../gis_data/gis_base/landscape"
-water<-st_read(landscape_db, "ssd_Lakes_and_marshland_fao_500k")
-```
+water<-st_read(landscape_db, "ssd_Lakes_and_marshland_fao_500k", quiet=T)
+rds<-st_read("../../../gis_data/gis_base/landscape","SSD_Roads", quiet=T) %>% st_transform(crs=4326)
+adm_diff<-st_read("../../../gis_data/gis_base/boundaries",layer = "ssd_adm0_difference_rect",quiet=T) # will use this remove background outside ssd
 
-    ## Reading layer `ssd_Lakes_and_marshland_fao_500k' from data source `C:\02_REACH_SSD\gis_data\gis_base\landscape' using driver `ESRI Shapefile'
-    ## Simple feature collection with 184 features and 8 fields
-    ## geometry type:  POLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: 24.97436 ymin: 2.368016 xmax: 36.68715 ymax: 11.99419
-    ## CRS:            4326
-
-``` r
-rds<-st_read("../../../gis_data/gis_base/landscape","SSD_Roads") %>% st_transform(crs=4326)
-```
-
-    ## Reading layer `SSD_Roads' from data source `C:\02_REACH_SSD\gis_data\gis_base\landscape' using driver `ESRI Shapefile'
-    ## Simple feature collection with 3 features and 3 fields
-    ## geometry type:  MULTILINESTRING
-    ## dimension:      XY
-    ## bbox:           xmin: -432290.8 ymin: 391508.7 xmax: 697722.8 ymax: 1352550
-    ## CRS:            32636
-
-``` r
-adm_diff<-st_read("../../../gis_data/gis_base/boundaries",layer = "ssd_adm0_difference_rect") # will use this remove background outside ssd
-```
-
-    ## Reading layer `ssd_adm0_difference_rect' from data source `C:\02_REACH_SSD\gis_data\gis_base\boundaries' using driver `ESRI Shapefile'
-    ## replacing null geometries with empty geometries
-    ## Simple feature collection with 2 features and 1 field (with 1 geometry empty)
-    ## geometry type:  POLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: 3.331702 ymin: -12.01951 xmax: 58.47997 ymax: 25.06518
-    ## CRS:            4326
-
-``` r
 # class lwd can be used to weight thickness of roads
 rds<-rds %>%
   mutate(CLASS_lwd=case_when(
@@ -90,7 +42,7 @@ rds<-rds %>%
   )
 ##########################################################
 
-aok_feb<- read_csv(aok_feb_path)
+aok_feb<- read_csv(aok_feb_path, )
 aok_march<- read_csv(aok_march_path)
 
 
