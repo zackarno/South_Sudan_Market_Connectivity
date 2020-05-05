@@ -109,7 +109,7 @@ markets<-readxl::read_xlsx("inputs/itemset_aok_market.xlsx","market_assesment", 
 
 * Since we have both Feb & March data if we have the same settlement twice we will first select the record which has data (i.e dont choose the record that has "no consensus" or is blank), then we choose then we preferentially choose the more recently data record.
 
-```{r}
+```{r,max.height='100px'}
 
 markets_unique<- markets %>%
   group_by(county, location_label, name_county_low) %>%
