@@ -1,9 +1,12 @@
 -   [Load Data](#load-data)
+-   [Attach market and settlment coordinates to data
+    points](#attach-market-and-settlment-coordinates-to-data-points)
 -   [Clean up market assessment data](#clean-up-market-assessment-data)
 -   [Spatial data wrangling](#spatial-data-wrangling)
 -   [Prepare settlement and market data for
     map](#prepare-settlement-and-market-data-for-map)
 -   [Leaflet Map](#leaflet-map)
+-   [Display Map](#display-map)
 
 Below is the code require to create the: [South Sudan Market
 Connectivity Map](zackarno.github.io/South_Sudan_Market_Connectivity)
@@ -57,7 +60,8 @@ settlement<-settlement %>%
   select(NAME, NAMEJOIN,COUNTYJOIN,sett_name_county_low,sett_lon=X,sett_lat=Y)
 ```
 
-\#Attach market and settlment coordinates to data points
+Attach market and settlment coordinates to data points
+======================================================
 
 ``` r
 aok_with_sett_coords<-aok %>% left_join(settlement , by=c("D.name_county_low"="sett_name_county_low"))
@@ -302,10 +306,13 @@ mkmap<-leaflet(options = leafletOptions(minZoom = 6)) %>%addTiles() %>%
                                    title = "Layers2")
 
   )
+```
 
-  # library(htmlwidgets)
-# saveWidget(mkmap, file="reach_ssd_market_connectivity_05april2020.html")
+Display Map
+===========
+
+``` r
 mkmap
 ```
 
-<img src="README_files/figure-markdown_github/unnamed-chunk-6-1.png" width="100%" />
+<img src="README_files/figure-markdown_github/unnamed-chunk-7-1.png" width="100%" />

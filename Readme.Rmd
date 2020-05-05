@@ -27,7 +27,7 @@ library(leaflet)
 
 ```
 
-#Load Data
+# Load Data
 
 ```{r}
 source("scripts/functions/colors.R")
@@ -37,17 +37,17 @@ aok_march_path<-"../../South_Sudan_Area_of_Knowledge/outputs/2020_03/aggregated_
 
 #spatial data inputs
 #######################################################
-adm2<-st_read("../../../gis_data/gis_base/boundaries","adm2_cleaned") %>%
+adm2<-st_read("../../../gis_data/gis_base/boundaries","adm2_cleaned", quiet=T) %>%
   st_transform(crs=4326)
 adm2<-adm2 %>% select(ADM2_EN,everything())
 adm2_center<-st_centroid(adm2) #will use this for labels
-adm0<-st_read("../../../gis_data/gis_base/boundaries","ssd_admbnda_adm0_imwg_nbs_20180817") %>%
+adm0<-st_read("../../../gis_data/gis_base/boundaries","ssd_admbnda_adm0_imwg_nbs_20180817", quiet=T) %>%
   st_transform(crs=4326)
 adm2_lines<-st_cast(adm2,to =  "MULTILINESTRING")
 landscape_db<-"../../../gis_data/gis_base/landscape"
-water<-st_read(landscape_db, "ssd_Lakes_and_marshland_fao_500k")
-rds<-st_read("../../../gis_data/gis_base/landscape","SSD_Roads") %>% st_transform(crs=4326)
-adm_diff<-st_read("../../../gis_data/gis_base/boundaries",layer = "ssd_adm0_difference_rect") # will use this remove background outside ssd
+water<-st_read(landscape_db, "ssd_Lakes_and_marshland_fao_500k", quiet=T)
+rds<-st_read("../../../gis_data/gis_base/landscape","SSD_Roads", quiet=T) %>% st_transform(crs=4326)
+adm_diff<-st_read("../../../gis_data/gis_base/boundaries",layer = "ssd_adm0_difference_rect",quiet=T) # will use this remove background outside ssd
 
 # class lwd can be used to weight thickness of roads
 rds<-rds %>%
@@ -60,7 +60,7 @@ rds<-rds %>%
   )
 ##########################################################
 
-aok_feb<- read_csv(aok_feb_path)
+aok_feb<- read_csv(aok_feb_path, )
 aok_march<- read_csv(aok_march_path)
 
 
@@ -80,7 +80,7 @@ settlement<-settlement %>%
 ```
 
 
-#Attach market and settlment coordinates to data points
+# Attach market and settlment coordinates to data points
 
 ```{r}
 aok_with_sett_coords<-aok %>% left_join(settlement , by=c("D.name_county_low"="sett_name_county_low"))
@@ -329,10 +329,13 @@ mkmap<-leaflet(options = leafletOptions(minZoom = 6)) %>%addTiles() %>%
 
   )
 
-  # library(htmlwidgets)
-# saveWidget(mkmap, file="reach_ssd_market_connectivity_05april2020.html")
-mkmap
+
 
 
 ```
 
+
+# Display Map
+```{r}
+mkmap
+```
