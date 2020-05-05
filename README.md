@@ -45,7 +45,7 @@ rds<-rds %>%
   )
 ##########################################################
 
-aok_feb<- read_csv(aok_feb_path, )
+aok_feb<- read_csv(aok_feb_path)
 aok_march<- read_csv(aok_march_path)
 
 
@@ -311,8 +311,5 @@ mkmap<-leaflet(options = leafletOptions(minZoom = 6)) %>%addTiles() %>%
 Display Map
 ===========
 
-``` r
-mkmap
-```
-
-<img src="README_files/figure-markdown_github/unnamed-chunk-7-1.png" width="100%" />
+\*Output: [South Sudan Market Connectivity
+Map](zackarno.github.io/South_Sudan_Market_Connectivity) \`\`\`
