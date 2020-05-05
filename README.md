@@ -9,7 +9,8 @@
 -   [Display Map](#display-map)
 
 Below is the code require to create the: [South Sudan Market
-Connectivity Map](zackarno.github.io/South_Sudan_Market_Connectivity)
+Connectivity
+Map](https://zackarno.github.io/South_Sudan_Market_Connectivity)
 
 Load Data
 =========
@@ -312,4 +313,4 @@ Display Map
 ===========
 
 \*Output: [South Sudan Market Connectivity
-Map](zackarno.github.io/South_Sudan_Market_Connectivity) \`\`\`
+Map](https://zackarno.github.io/South_Sudan_Market_Connectivity) \`\`\`
